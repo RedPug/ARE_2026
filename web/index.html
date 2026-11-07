@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Anteater Ride Engineering</h1>
+    <div id="pane-container">
+        <div id="indicator-section">
+            <div id="ride-mode-indicator" class="mode-indicator">
+                <span>Ride Mode: </span>
+                <span id="ride-mode-status">?</span>
+            </div>
+
+            <div id="station-state-indicator" class="mode-indicator">
+                <span>Station State: </span>
+                <span id="station-state-status">?</span>
+            </div>
+            <div id="lift-state-indicator" class="mode-indicator">
+                <span>Lift State: </span>
+                <span id="lift-state-status">?</span>
+            </div>
+            <div id="track-state-indicator" class="mode-indicator">
+                <span>Track State: </span>
+                <span id="track-state-status">?</span>
+            </div>
+
+            <div id="fault_indicator" class="mode-indicator">
+                <span>Fault: </span>
+                <span id="fault-status">None</span>
+            </div>
+        </div>
+        <div id="control-buttons">
+            <button id="led-on">LED on</button>
+            <button id="led-off">LED off</button>
+
+            <button id="begin_cycle">Begin Cycle</button>
+
+            <div id="status-indicator-container"></div>
+        </div>
+    </div>
+</body>
+</html>
