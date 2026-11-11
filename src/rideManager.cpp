@@ -1,6 +1,8 @@
 #include "rideManager.hpp"
 #include "webManager.hpp"
 #include "settings.hpp"
+#include "eventManager.hpp"
+#include "faultManager.hpp"
 
 using namespace RideManager;
 
@@ -24,20 +26,9 @@ void handleIdle() {
     // Handle idle mode
 }
 
-void handleRunning() {
-    // Handle running mode
-    if(stationState == StationState::HOLDING && liftState == LiftState::STANDBY) {
-        stationState = StationState::DEPARTING;
-        liftState = LiftState::LOADING;
-    }
-
+void handleLift() {
     if(liftState == LiftState::LOADED){
         liftState = LiftState::RAISING;
-    }
-
-    if(liftState == LiftState::RAISED && trackState == TrackState::EMPTY){
-        liftState = LiftState::UNLOADING;
-        trackState = TrackState::ARRIVING;
     }
 
     if(liftState == LiftState::UNLOADED){
@@ -48,39 +39,58 @@ void handleRunning() {
         liftState = LiftState::STANDBY;
     }
 
+}
+
+void handleBlockTransitions(bool isLastCycle) {
+    if(!isLastCycle) {
+        if(stationState == StationState::HOLDING && liftState == LiftState::STANDBY) {
+            stationState = StationState::DEPARTING;
+            liftState = LiftState::LOADING;
+        }
+    }
+
     if(stationState == StationState::EMPTY && trackState == TrackState::HOLDING) {
         stationState = StationState::ARRIVING;
         trackState = TrackState::DEPARTING;
     }
+
+    if(liftState == LiftState::RAISED && trackState == TrackState::EMPTY){
+        liftState = LiftState::UNLOADING;
+        trackState = TrackState::ARRIVING;
+    }
 }
 
 void handleFault() {
-    // Handle fault mode
+    FaultBehavior severity = FaultManager::getFaultBehavior();
+    if(!(severity & FaultBehavior::DISABLE_LIFT_OPERATION)){
+        handleLift();
+    }
+
+    if(!(severity & FaultBehavior::DISABLE_BLOCK_ENTRY)){
+        handleBlockTransitions(true);
+    }
+
 }
 
 void RideManager::loop() {
     if(rideMode != lastRideMode) {
         lastRideMode = rideMode;
         WebServer::send_ride_mode(rideMode);
-        Serial.println("Ride mode changed to: " + String(static_cast<int>(rideMode)));
     }
 
     if(liftState != lastLiftState) {
         lastLiftState = liftState;
-        WebServer::send_variable_state(to_string(WebVariable::LIFT_STATE), to_string(liftState));
-        Serial.println("Lift state changed to: " + String(to_string(liftState)));
+        WebServer::send_variable_state(to_string(WebVariable::LIFT_STATE), toString(liftState));
     }
 
     if(stationState != lastStationState) {
         lastStationState = stationState;
-        WebServer::send_variable_state(to_string(WebVariable::STATION_STATE), to_string(stationState));
-        Serial.println("Station state changed to: " + String(to_string(stationState)));
+        WebServer::send_variable_state(to_string(WebVariable::STATION_STATE), toString(stationState));
     }
 
     if(trackState != lastTrackState) {
         lastTrackState = trackState;
-        WebServer::send_variable_state(to_string(WebVariable::TRACK_STATE), to_string(trackState));
-        Serial.println("Track state changed to: " + String(to_string(trackState)));
+        WebServer::send_variable_state(to_string(WebVariable::TRACK_STATE), toString(trackState));
     }
 
     switch (rideMode) {
@@ -88,7 +98,12 @@ void RideManager::loop() {
             handleIdle();
             break;
         case RideMode::RUNNING:
-            handleRunning();
+            handleLift();
+            handleBlockTransitions(false);
+            break;
+        case RideMode::LAST_CYCLE:
+            handleLift();
+            handleBlockTransitions(true);
             break;
         case RideMode::FAULT:
             handleFault();
@@ -115,7 +130,7 @@ void RideManager::requestStart() {
 
 void RideManager::requestStop() {
     if (rideMode == RideMode::RUNNING) {
-        rideMode = RideMode::IDLE;
-        Serial.println("Ride stopped");
+        rideMode = RideMode::LAST_CYCLE;
+        Serial.println("Ride requested to stop");
     }
 }

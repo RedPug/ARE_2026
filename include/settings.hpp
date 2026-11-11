@@ -1,4 +1,4 @@
-#include <string_view>
+#pragma once
 
 enum class WebVariable {
     LED_STATUS,
@@ -10,6 +10,8 @@ enum class WebVariable {
 enum class FaultCode {
     ESTOP,
 };
+
+const unsigned int MAX_FAULT_HISTORY = 16;
 
 constexpr const char* to_string(FaultCode fault){
     switch(fault){

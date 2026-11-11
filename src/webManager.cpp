@@ -158,17 +158,17 @@ void WebServer::sendRideStates(uint8_t clientNumber) {
     send_ride_mode(RideManager::rideMode, clientNumber);
     send_variable_state(
         to_string(WebVariable::LIFT_STATE),
-        to_string(RideManager::liftState),
+        toString(RideManager::liftState),
         clientNumber
     );
     send_variable_state(
         to_string(WebVariable::STATION_STATE),
-        to_string(RideManager::stationState),
+        toString(RideManager::stationState),
         clientNumber
     );
     send_variable_state(
         to_string(WebVariable::TRACK_STATE),
-        to_string(RideManager::trackState),
+        toString(RideManager::trackState),
         clientNumber
     );
 }

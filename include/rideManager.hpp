@@ -3,6 +3,7 @@
 enum class RideMode {
     IDLE,
     RUNNING,
+    LAST_CYCLE,
     FAULT
 };
 
@@ -54,18 +55,20 @@ void requestStop();
 
 }
 
-constexpr const char* to_string(RideMode mode){
+constexpr const char* toString(RideMode mode){
     switch(mode){
         case RideMode::IDLE:
             return "idle";
         case RideMode::RUNNING:
             return "running";
+        case RideMode::LAST_CYCLE:
+            return "last_cycle";
         case RideMode::FAULT:
             return "fault";
     }
 }
 
-constexpr const char* to_string(LiftState state){
+constexpr const char* toString(LiftState state){
     switch(state){
         case LiftState::STANDBY:
             return "standby";
@@ -88,7 +91,7 @@ constexpr const char* to_string(LiftState state){
     }
 }
 
-constexpr const char* to_string(StationState state){
+constexpr const char* toString(StationState state){
     switch(state){
         case StationState::EMPTY:
             return "empty";
@@ -101,7 +104,7 @@ constexpr const char* to_string(StationState state){
     }
 }
 
-constexpr const char* to_string(TrackState state){
+constexpr const char* toString(TrackState state){
     switch(state){
         case TrackState::EMPTY:
             return "empty";

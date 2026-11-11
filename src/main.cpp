@@ -1,12 +1,16 @@
 #include <Arduino.h>
 #include "webManager.hpp"
 #include "rideManager.hpp"
+#include "faultManager.hpp"
+#include "eventManager.hpp"
 
 void setup() {
     Serial.begin(9600);
 
+    FaultManager::setup();
     WebServer::setup();
     RideManager::setup();
+    EventManager::setup();
 }
 
 bool station_event_flag = false;
@@ -104,8 +108,11 @@ void simulateEvents(){
 void loop() {
     simulateEvents();
 
+    FaultManager::loop();
+
     WebServer::loop();
     RideManager::loop();
+    EventManager::loop();
 
     delay(100);
 }
